@@ -53,6 +53,14 @@
             border-radius: 0.5rem;
             margin-right: 0.5rem;
         }
+        .group-chat-message-other {
+            background-color: #e2e8f0;
+            color: #1f2937;
+        }
+        .group-chat-message-mine {
+            background-color: #4f46e5;
+            color: white;
+        }
     </style>
 </head>
 <body>
@@ -125,7 +133,15 @@
 
             <!-- Community Section -->
             <div id="community-section" class="hidden">
-                <!-- Post Creation Form (removed) -->
+                <!-- Post Creation Form -->
+                <div class="bg-gray-100 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Create a New Story</h2>
+                    <form id="new-post-form" class="space-y-4">
+                        <input type="text" id="post-title" placeholder="Title" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <textarea id="post-content" rows="6" placeholder="Write your story here..." class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        <button type="submit" class="btn-primary w-full">Publish Story</button>
+                    </form>
+                </div>
                 
                 <!-- Post List -->
                 <div id="posts-list">
@@ -163,6 +179,7 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
         const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const TEXT_API_KEY = typeof __api_key_text !== 'undefined' ? __api_key_text : "";
 
         let db, auth;
         let userId;
@@ -174,7 +191,6 @@
         let unsubscribePosts = null;
         let aiChatHistory = [];
         
-        const TEXT_API_KEY = "";
         const TEXT_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + TEXT_API_KEY;
 
         // Message Box/Alert Replacement
@@ -224,6 +240,9 @@
         const groupDisconnectBtn = document.getElementById('group-disconnect-btn');
         
         const postsListEl = document.getElementById('posts-list');
+        const newPostForm = document.getElementById('new-post-form');
+        const postTitleInput = document.getElementById('post-title');
+        const postContentInput = document.getElementById('post-content');
         
         const updateUIState = (state) => {
             switch (state) {
@@ -414,13 +433,22 @@
                         const messageEl = document.createElement('div');
                         const isMine = message.authorId === userId;
                         messageEl.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
-                        if (isMine) {
-                            messageEl.classList.add('bg-indigo-500', 'text-white', 'ml-auto');
-                            messageEl.innerHTML = `<span class="font-bold">You:</span> ${message.text}`;
+                        if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
+                            messageEl.classList.add(isMine ? 'group-chat-message-mine' : 'group-chat-message-other');
+                            if (isMine) {
+                                messageEl.classList.add('ml-auto');
+                            }
+                            messageEl.innerHTML = `<span class="font-bold">${isMine ? 'You' : message.authorId.substring(0, 8) + '...'}:</span> ${message.text}`;
                         } else {
-                            messageEl.classList.add('bg-gray-200', 'text-gray-800');
-                            messageEl.innerHTML = `<span class="font-bold">${message.authorId.substring(0, 8)}...:</span> ${message.text}`;
+                            if (isMine) {
+                                messageEl.classList.add('bg-indigo-500', 'text-white', 'ml-auto');
+                                messageEl.innerHTML = `<span class="font-bold">You:</span> ${message.text}`;
+                            } else {
+                                messageEl.classList.add('bg-gray-200', 'text-gray-800');
+                                messageEl.innerHTML = `<span class="font-bold">${message.authorId.substring(0, 8)}...:</span> ${message.text}`;
+                            }
                         }
+                        
                         targetMessagesEl.appendChild(messageEl);
                         targetMessagesEl.scrollTop = targetMessagesEl.scrollHeight;
                     }
@@ -436,6 +464,9 @@
             chatSection.classList.remove('hidden');
             groupChatSection.classList.add('hidden');
             communitySection.classList.add('hidden');
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
         });
 
         groupChatTabBtn.addEventListener('click', () => {
@@ -445,6 +476,9 @@
             chatSection.classList.add('hidden');
             groupChatSection.classList.remove('hidden');
             communitySection.classList.add('hidden');
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
         });
 
         communityTabBtn.addEventListener('click', () => {
@@ -454,6 +488,7 @@
             chatSection.classList.add('hidden');
             groupChatSection.classList.add('hidden');
             communitySection.classList.remove('hidden');
+            fetchAndRenderPosts();
         });
 
         findStrangerBtn.addEventListener('click', findStranger);
@@ -602,7 +637,8 @@
             }
 
             try {
-                await addDoc(collection(db, `/artifacts/${appId}/public/data/group_chats/${currentChatRoomId}/messages`), {
+                const docRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, currentChatRoomId);
+                await addDoc(collection(docRef, "messages"), {
                     text: messageText,
                     authorId: userId,
                     timestamp: serverTimestamp()
@@ -673,6 +709,31 @@
                 });
             });
         };
+        
+        newPostForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = postTitleInput.value.trim();
+            const content = postContentInput.value.trim();
+            if (!title || !content) {
+                showMessage("Title and content are required to publish a post.");
+                return;
+            }
+
+            try {
+                await addDoc(collection(db, `/artifacts/${appId}/public/data/posts`), {
+                    title: title,
+                    content: content,
+                    authorId: userId,
+                    timestamp: serverTimestamp()
+                });
+                postTitleInput.value = '';
+                postContentInput.value = '';
+            } catch (e) {
+                console.error("Error adding document: ", e);
+                showMessage("Could not publish story. Please try again.");
+            }
+        });
+
 
         const viewPost = async (postId) => {
             const postDocRef = doc(db, `/artifacts/${appId}/public/data/posts`, postId);
@@ -834,3 +895,5 @@
     </script>
 </body>
 </html>
+
+
