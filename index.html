@@ -1,899 +1,748 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogs</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-        .container {
-            max-width: 800px;
-        }
-        .tab-button.active {
-            background-color: #4f46e5;
-            color: white;
-        }
-        .btn-primary {
-            @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
-        }
-        .btn-secondary {
-            @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
-        }
-        .modal {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .loading-animation {
-            display: inline-block;
-            animation: pulse 1.5s infinite ease-in-out;
-            transform-origin: center;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.8; }
-        }
-        .image-preview {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        .post-image-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            margin-right: 0.5rem;
-        }
-        .group-chat-message-other {
-            background-color: #e2e8f0;
-            color: #1f2937;
-        }
-        .group-chat-message-mine {
-            background-color: #4f46e5;
-            color: white;
-        }
-    </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blogs</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+        .container {
+            max-width: 800px;
+        }
+        .tab-button.active {
+            background-color: #4f46e5;
+            color: white;
+        }
+        .btn-primary {
+            @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
+        }
+        .btn-secondary {
+            @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
+        }
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .loading-animation {
+            display: inline-block;
+            animation: pulse 1.5s infinite ease-in-out;
+            transform-origin: center;
+        }
+        @keyframes pulse {
+            0% { transform: scale(0.9); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 1; }
+            100% { transform: scale(0.9); opacity: 0.8; }
+        }
+        .image-preview {
+            width: 100%;
+            height: 250px;
+            object-fit: cover;
+            border-radius: 0.75rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .post-image-thumb {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 0.5rem;
+            margin-right: 0.5rem;
+        }
+        .group-chat-message-other {
+            background-color: #e2e8f0;
+            color: #1f2937;
+        }
+        .group-chat-message-mine {
+            background-color: #4f46e5;
+            color: white;
+        }
+    </style>
 </head>
 <body>
 
-    <div class="container mx-auto p-4 md:p-8">
-        <header class="text-center mb-8">
-            <h1 class="text-4xl font-bold text-indigo-600 mb-2">Blogs</h1>
-            <p class="text-lg text-gray-600">Write, Share, Connect.</p>
-        </header>
+    <div class="container mx-auto p-4 md:p-8">
+        <header class="text-center mb-8">
+            <h1 class="text-4xl font-bold text-indigo-600 mb-2">Blogs</h1>
+            <p class="text-lg text-gray-600">Write, Share, Connect.</p>
+        </header>
 
-        <div class="bg-white rounded-xl shadow-lg p-6">
-            <!-- User Info and Tabs -->
-            <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4">
-                <div id="auth-status" class="text-gray-500 text-sm mb-4 md:mb-0">
-                    <span id="loading-spinner" class="animate-spin inline-block h-4 w-4 rounded-full border-2 border-r-transparent border-indigo-500 mr-2"></span>
-                    <span id="user-id-display">Authenticating...</span>
-                </div>
-                <div class="flex space-x-2">
-                    <button id="chat-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200 active">Random Chat</button>
-                    <button id="group-chat-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200">Group Chat</button>
-                    <button id="community-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200">Community</button>
-                </div>
-            </div>
+        <div class="bg-white rounded-xl shadow-lg p-6">
+            <!-- User Info and Tabs -->
+            <div class="flex flex-col md:flex-row justify-between items-center mb-6 border-b pb-4">
+                <div id="auth-status" class="text-gray-500 text-sm mb-4 md:mb-0">
+                    <span id="loading-spinner" class="animate-spin inline-block h-4 w-4 rounded-full border-2 border-r-transparent border-indigo-500 mr-2"></span>
+                    <span id="user-id-display">Authenticating...</span>
+                </div>
+                <div class="flex space-x-2">
+                    <button id="chat-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200 active">Random Chat</button>
+                    <button id="group-chat-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200">Group Chat</button>
+                    <button id="community-tab" class="tab-button px-4 py-2 rounded-full font-medium text-sm transition-colors duration-200">Community</button>
+            </div>
+            </div>
 
-            <!-- Chat Section -->
-            <div id="chat-section">
-                <div id="chat-status" class="text-center text-gray-500 font-medium mb-4">Connecting...</div>
+            <!-- Chat Section -->
+            <div id="chat-section">
+                <div id="chat-status" class="text-center text-gray-500 font-medium mb-4">Connecting...</div>
 
-                <div id="chat-messages" class="h-96 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4">
-                    <!-- Chat messages will be dynamically added here -->
-                </div>
+                <div id="chat-messages" class="h-96 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4">
+                    <!-- Chat messages will be dynamically added here -->
+                </div>
 
-                <div id="chat-controls" class="flex items-center space-x-2">
-                    <input type="text" id="chat-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Type a message...">
-                    <button id="send-btn" class="btn-primary px-6">Send</button>
-                    <button id="disconnect-btn" class="btn-secondary px-6 hidden">Disconnect</button>
-                    <button id="find-stranger-btn" class="btn-primary px-6">Find a Stranger</button>
-                    <button id="ai-chat-btn" class="btn-primary px-6">Chat with AI ✨</button>
-                </div>
-            </div>
-            
-            <!-- Group Chat Section -->
-            <div id="group-chat-section" class="hidden">
-                 <div class="flex flex-col md:flex-row gap-4 mb-4">
-                    <div class="flex-1 p-6 bg-gray-100 rounded-lg shadow-inner">
-                        <h2 class="text-xl font-bold text-gray-700 mb-2">Create a Chat Room</h2>
-                        <p class="text-gray-600 text-sm mb-4">Generate a new ID to share with your friends.</p>
-                        <button id="create-group-btn" class="btn-primary w-full md:w-auto">Create Room</button>
-                        <p id="room-id-display" class="mt-4 text-center text-lg font-bold text-indigo-600 hidden">
-                            Room ID: <span id="room-id-text"></span>
-                        </p>
-                    </div>
-                    <div class="flex-1 p-6 bg-gray-100 rounded-lg shadow-inner">
-                        <h2 class="text-xl font-bold text-gray-700 mb-2">Join a Chat Room</h2>
-                        <p class="text-gray-600 text-sm mb-4">Enter a friend's room ID to join their chat.</p>
-                        <div class="flex space-x-2">
-                            <input type="text" id="join-room-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter Room ID">
-                            <button id="join-group-btn" class="btn-primary px-6 py-2">Join</button>
-                        </div>
-                    </div>
-                </div>
-                <div id="group-chat-status" class="text-center text-gray-500 font-medium mb-4 hidden"></div>
-                <div id="group-chat-messages" class="h-96 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4 hidden"></div>
-                <div id="group-chat-controls" class="flex items-center space-x-2 hidden">
-                    <input type="text" id="group-chat-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Type a message...">
-                    <button id="group-send-btn" class="btn-primary px-6">Send</button>
-                    <button id="group-disconnect-btn" class="btn-secondary px-6">Leave</button>
-                </div>
-            </div>
+                <div id="chat-controls" class="flex items-center space-x-2">
+                    <input type="text" id="chat-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Type a message...">
+                    <button id="send-btn" class="btn-primary px-6">Send</button>
+                    <button id="disconnect-btn" class="btn-secondary px-6 hidden">Disconnect</button>
+                    <button id="find-stranger-btn" class="btn-primary px-6">Find a Stranger</button>
+                    <button id="ai-chat-btn" class="btn-primary px-6">Chat with AI ✨</button>
+                </div>
+            </div>
+            
+            <!-- Group Chat Section -->
+            <div id="group-chat-section" class="hidden">
+                 <div class="flex flex-col md:flex-row gap-4 mb-4">
+                    <div class="flex-1 p-6 bg-gray-100 rounded-lg shadow-inner">
+                        <h2 class="text-xl font-bold text-gray-700 mb-2">Create a Chat Room</h2>
+                        <p class="text-gray-600 text-sm mb-4">Generate a new ID to share with your friends.</p>
+                        <button id="create-group-btn" class="btn-primary w-full md:w-auto">Create Room</button>
+                        <p id="room-id-display" class="mt-4 text-center text-lg font-bold text-indigo-600 hidden">
+                            Room ID: <span id="room-id-text"></span>
+                        </p>
+                    </div>
+                    <div class="flex-1 p-6 bg-gray-100 rounded-lg shadow-inner">
+                        <h2 class="text-xl font-bold text-gray-700 mb-2">Join a Chat Room</h2>
+                        <p class="text-gray-600 text-sm mb-4">Enter a friend's room ID to join their chat.</p>
+                        <div class="flex space-x-2">
+                            <input type="text" id="join-room-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter Room ID">
+                            <button id="join-group-btn" class="btn-primary px-6 py-2">Join</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="group-chat-status" class="text-center text-gray-500 font-medium mb-4 hidden"></div>
+                <div id="group-chat-messages" class="h-96 overflow-y-auto bg-gray-100 p-4 rounded-lg mb-4 hidden"></div>
+                <div id="group-chat-controls" class="flex items-center space-x-2 hidden">
+                    <input type="text" id="group-chat-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition-all" placeholder="Type a message...">
+                    <button id="group-send-btn" class="btn-primary px-6">Send</button>
+                    <button id="group-disconnect-btn" class="btn-secondary px-6">Leave</button>
+                </div>
+            </div>
 
-            <!-- Community Section -->
-            <div id="community-section" class="hidden">
-                <!-- Post Creation Form -->
-                <div class="bg-gray-100 rounded-xl p-6 mb-8">
-                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Create a New Story</h2>
-                    <form id="new-post-form" class="space-y-4">
-                        <input type="text" id="post-title" placeholder="Title" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <textarea id="post-content" rows="6" placeholder="Write your story here..." class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
-                        <button type="submit" class="btn-primary w-full">Publish Story</button>
-                    </form>
-                </div>
-                
-                <!-- Post List -->
-                <div id="posts-list">
-                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Recent Stories</h2>
-                    <!-- Posts will be dynamically added here -->
-                </div>
-            </div>
-        </div>
-    </div>
+            <!-- Community Section -->
+            <div id="community-section" class="hidden">
+                <!-- Post Creation Form -->
+                <div class="bg-gray-100 rounded-xl p-6 mb-8">
+                    <h2 class="text-2xl font-semibold text-gray-800 mb-4">Create a New Story</h2>
+                    <form id="new-post-form" class="space-y-4">
+                        <input type="text" id="post-title" placeholder="Title" class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <textarea id="post-content" rows="6" placeholder="Write your story here..." class="w-full p-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500"></textarea>
+                        <button type="submit" class="btn-primary w-full">Publish Story</button>
+                    </form>
+                </div>
+                
+                <!-- Post List -->
+                <div id="posts-list">
+                    <h2 class="text-2xl font-semibold mb-4 text-gray-800">Recent Stories</h2>
+                    <!-- Posts will be dynamically added here -->
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <!-- Modal for Alerts -->
-    <div id="alert-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
-            <p id="alert-message" class="text-gray-700 mb-4"></p>
-            <button id="alert-ok-btn" class="btn-primary w-full">OK</button>
-        </div>
-    </div>
-    
-    <!-- Modal for loading -->
-    <div id="loading-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
-        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
-            <div class="loading-animation mb-2 text-4xl">✨</div>
-            <p id="loading-message" class="text-gray-700 mb-4">Generating ideas...</p>
-        </div>
-    </div>
+    <!-- Modal for Alerts -->
+    <div id="alert-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
+            <p id="alert-message" class="text-gray-700 mb-4"></p>
+            <button id="alert-ok-btn" class="btn-primary w-full">OK</button>
+        </div>
+    </div>
+    
+    <!-- Modal for loading -->
+    <div id="loading-modal" class="modal fixed inset-0 flex items-center justify-center p-4 hidden">
+        <div class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-sm text-center">
+            <div class="loading-animation mb-2 text-4xl">✨</div>
+            <p id="loading-message" class="text-gray-700 mb-4">Generating ideas...</p>
+        </div>
+    </div>
 
-    <!-- Firebase Imports -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <!-- Firebase Imports -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // IMPORTANT: Use the global variables for Firebase configuration and authentication
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        const TEXT_API_KEY = typeof __api_key_text !== 'undefined' ? __api_key_text : "";
+        // IMPORTANT: Use the global variables for Firebase configuration and authentication
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+        const TEXT_API_KEY = typeof __api_key_text !== 'undefined' ? __api_key_text : "";
 
-        let db, auth;
-        let userId;
-        let chatPartnerId = null;
-        let currentChatRoomId = null;
-        let currentChatCollection = null;
-        let unsubscribeChat = null;
-        let unsubscribeWaitingRoom = null;
-        let unsubscribePosts = null;
-        let aiChatHistory = [];
-        
-        const TEXT_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + TEXT_API_KEY;
+        let db, auth;
+        let userId;
+        let chatPartnerId = null;
+        let currentChatRoomId = null;
+        let currentChatCollection = null;
+        let unsubscribeChat = null;
+        let unsubscribeWaitingRoom = null;
+        let unsubscribePosts = null;
+        let aiChatHistory = [];
+        
+        const TEXT_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + TEXT_API_KEY;
 
-        // Message Box/Alert Replacement
-        const alertModal = document.getElementById('alert-modal');
-        const alertMessage = document.getElementById('alert-message');
-        const alertOkBtn = document.getElementById('alert-ok-btn');
-        const loadingModal = document.getElementById('loading-modal');
-        const loadingMessage = document.getElementById('loading-message');
+        // Message Box/Alert Replacement
+        const alertModal = document.getElementById('alert-modal');
+        const alertMessage = document.getElementById('alert-message');
+        const alertOkBtn = document.getElementById('alert-ok-btn');
+        const loadingModal = document.getElementById('loading-modal');
+        const loadingMessage = document.getElementById('loading-message');
 
-        const showMessage = (message) => {
-            alertMessage.textContent = message;
-            alertModal.classList.remove('hidden');
-        };
+        const showMessage = (message) => {
+            alertMessage.textContent = message;
+            alertModal.classList.remove('hidden');
+        };
 
-        alertOkBtn.addEventListener('click', () => {
-            alertModal.classList.add('hidden');
-        });
+        alertOkBtn.addEventListener('click', () => {
+            alertModal.classList.add('hidden');
+        });
 
-        // UI elements
-        const chatSection = document.getElementById('chat-section');
-        const groupChatSection = document.getElementById('group-chat-section');
-        const communitySection = document.getElementById('community-section');
-        const chatTabBtn = document.getElementById('chat-tab');
-        const groupChatTabBtn = document.getElementById('group-chat-tab');
-        const communityTabBtn = document.getElementById('community-tab');
-        const authStatus = document.getElementById('auth-status');
-        const userIdDisplay = document.getElementById('user-id-display');
-        const loadingSpinner = document.getElementById('loading-spinner');
-        const chatStatus = document.getElementById('chat-status');
-        const chatMessagesEl = document.getElementById('chat-messages');
-        const chatInput = document.getElementById('chat-input');
-        const sendBtn = document.getElementById('send-btn');
-        const disconnectBtn = document.getElementById('disconnect-btn');
-        const findStrangerBtn = document.getElementById('find-stranger-btn');
-        const aiChatBtn = document.getElementById('ai-chat-btn');
-        
-        const createGroupBtn = document.getElementById('create-group-btn');
-        const joinRoomInput = document.getElementById('join-room-input');
-        const joinGroupBtn = document.getElementById('join-group-btn');
-        const roomIdDisplay = document.getElementById('room-id-display');
-        const roomIdText = document.getElementById('room-id-text');
-        const groupChatStatus = document.getElementById('group-chat-status');
-        const groupChatMessagesEl = document.getElementById('group-chat-messages');
-        const groupChatControls = document.getElementById('group-chat-controls');
-        const groupChatInput = document.getElementById('group-chat-input');
-        const groupSendBtn = document.getElementById('group-send-btn');
-        const groupDisconnectBtn = document.getElementById('group-disconnect-btn');
-        
-        const postsListEl = document.getElementById('posts-list');
-        const newPostForm = document.getElementById('new-post-form');
-        const postTitleInput = document.getElementById('post-title');
-        const postContentInput = document.getElementById('post-content');
-        
-        const updateUIState = (state) => {
-            switch (state) {
-                case 'random-chat-disconnected':
-                    chatStatus.textContent = 'Disconnected. Click a button to connect.';
-                    chatInput.classList.add('hidden');
-                    sendBtn.classList.add('hidden');
-                    disconnectBtn.classList.add('hidden');
-                    findStrangerBtn.classList.remove('hidden');
-                    aiChatBtn.classList.remove('hidden');
-                    break;
-                case 'random-chat-waiting':
-                    chatStatus.textContent = 'Waiting for a partner...';
-                    chatInput.classList.add('hidden');
-                    sendBtn.classList.add('hidden');
-                    disconnectBtn.classList.remove('hidden');
-                    findStrangerBtn.classList.add('hidden');
-                    aiChatBtn.classList.add('hidden');
-                    break;
-                case 'random-chat-in-chat':
-                    chatStatus.textContent = `Connected! Your chat partner is ${chatPartnerId}.`;
-                    chatInput.classList.remove('hidden');
-                    sendBtn.classList.remove('hidden');
-                    disconnectBtn.classList.remove('hidden');
-                    findStrangerBtn.classList.add('hidden');
-                    aiChatBtn.classList.add('hidden');
-                    break;
-                case 'random-chat-in-ai-chat':
-                    chatStatus.textContent = `Chatting with the AI Companion.`;
-                    chatInput.classList.remove('hidden');
-                    sendBtn.classList.remove('hidden');
-                    disconnectBtn.classList.remove('hidden');
-                    findStrangerBtn.classList.add('hidden');
-                    aiChatBtn.classList.add('hidden');
-                    break;
-                case 'group-chat-idle':
-                    groupChatStatus.classList.add('hidden');
-                    groupChatMessagesEl.classList.add('hidden');
-                    groupChatControls.classList.add('hidden');
-                    break;
-                case 'group-chat-in-chat':
-                    groupChatStatus.textContent = `Connected to room: ${currentChatRoomId}`;
-                    groupChatStatus.classList.remove('hidden');
-                    groupChatMessagesEl.classList.remove('hidden');
-                    groupChatControls.classList.remove('hidden');
-                    break;
-            }
-        };
+        // UI elements
+        const chatSection = document.getElementById('chat-section');
+        const groupChatSection = document.getElementById('group-chat-section');
+        const communitySection = document.getElementById('community-section');
+        const chatTabBtn = document.getElementById('chat-tab');
+        const groupChatTabBtn = document.getElementById('group-chat-tab');
+        const communityTabBtn = document.getElementById('community-tab');
+        const authStatus = document.getElementById('auth-status');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const loadingSpinner = document.getElementById('loading-spinner');
+        const chatStatus = document.getElementById('chat-status');
+        const chatMessagesEl = document.getElementById('chat-messages');
+        const chatInput = document.getElementById('chat-input');
+        const sendBtn = document.getElementById('send-btn');
+        const disconnectBtn = document.getElementById('disconnect-btn');
+        const findStrangerBtn = document.getElementById('find-stranger-btn');
+        const aiChatBtn = document.getElementById('ai-chat-btn');
+        
+        const createGroupBtn = document.getElementById('create-group-btn');
+        const joinRoomInput = document.getElementById('join-room-input');
+        const joinGroupBtn = document.getElementById('join-group-btn');
+        const roomIdDisplay = document.getElementById('room-id-display');
+        const roomIdText = document.getElementById('room-id-text');
+        const groupChatStatus = document.getElementById('group-chat-status');
+        const groupChatMessagesEl = document.getElementById('group-chat-messages');
+        const groupChatControls = document.getElementById('group-chat-controls');
+        const groupChatInput = document.getElementById('group-chat-input');
+        const groupSendBtn = document.getElementById('group-send-btn');
+        const groupDisconnectBtn = document.getElementById('group-disconnect-btn');
+        
+        const postsListEl = document.getElementById('posts-list');
+        const newPostForm = document.getElementById('new-post-form');
+        const postTitleInput = document.getElementById('post-title');
+        const postContentInput = document.getElementById('post-content');
+        
+        const updateUIState = (state) => {
+            switch (state) {
+                case 'random-chat-disconnected':
+                    chatStatus.textContent = 'Disconnected. Click a button to connect.';
+                    chatInput.classList.add('hidden');
+                    sendBtn.classList.add('hidden');
+                    disconnectBtn.classList.add('hidden');
+                    findStrangerBtn.classList.remove('hidden');
+                    aiChatBtn.classList.remove('hidden');
+                    break;
+                case 'random-chat-waiting':
+                    chatStatus.textContent = 'Waiting for a partner...';
+                    chatInput.classList.add('hidden');
+                    sendBtn.classList.add('hidden');
+                    disconnectBtn.classList.remove('hidden');
+                    findStrangerBtn.classList.add('hidden');
+                    aiChatBtn.classList.add('hidden');
+                    break;
+                case 'random-chat-in-chat':
+                    chatStatus.textContent = `Connected! Your chat partner is ${chatPartnerId}.`;
+                    chatInput.classList.remove('hidden');
+                    sendBtn.classList.remove('hidden');
+                    disconnectBtn.classList.remove('hidden');
+                    findStrangerBtn.classList.add('hidden');
+                    aiChatBtn.classList.add('hidden');
+                    break;
+                case 'random-chat-in-ai-chat':
+                    chatStatus.textContent = `Chatting with the AI Companion.`;
+                    chatInput.classList.remove('hidden');
+                    sendBtn.classList.remove('hidden');
+                    disconnectBtn.classList.remove('hidden');
+                    findStrangerBtn.classList.add('hidden');
+                    aiChatBtn.classList.add('hidden');
+                    break;
+                case 'group-chat-idle':
+                    groupChatStatus.classList.add('hidden');
+                    groupChatMessagesEl.classList.add('hidden');
+                    groupChatControls.classList.add('hidden');
+                    break;
+                case 'group-chat-in-chat':
+                    groupChatStatus.textContent = `Connected to room: ${currentChatRoomId}`;
+                    groupChatStatus.classList.remove('hidden');
+                    groupChatMessagesEl.classList.remove('hidden');
+                    groupChatControls.classList.remove('hidden');
+                    break;
+            }
+        };
 
-        const handleChatDisconnect = async () => {
-            if (currentChatCollection === `/artifacts/${appId}/public/data/chat_sessions`) {
-                 if (chatPartnerId === 'AI_COMPANION') {
-                    aiChatHistory = [];
-                    chatPartnerId = null;
-                    chatMessagesEl.innerHTML = '';
-                    updateUIState('random-chat-disconnected');
-                    aiChatBtn.textContent = 'Chat with AI ✨';
-                } else {
-                    if (currentChatRoomId) {
-                        try {
-                            await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_sessions`, currentChatRoomId));
-                        } catch (e) {
-                            console.error("Error deleting chat session document:", e);
-                        }
-                    }
-                    if (unsubscribeChat) {
-                        unsubscribeChat();
-                    }
-                    currentChatRoomId = null;
-                    chatPartnerId = null;
-                    chatMessagesEl.innerHTML = '';
-                    updateUIState('random-chat-disconnected');
-                }
-            } else if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
-                if (unsubscribeChat) {
-                    unsubscribeChat();
-                }
-                currentChatRoomId = null;
-                groupChatMessagesEl.innerHTML = '';
-                updateUIState('group-chat-idle');
-            }
-        };
-        
-        // Handle chat matching logic
-        const findStranger = async () => {
-            handleChatDisconnect();
-            updateUIState('random-chat-waiting');
-            currentChatCollection = `/artifacts/${appId}/public/data/chat_sessions`;
-            
-            if (unsubscribeWaitingRoom) {
-                unsubscribeWaitingRoom();
-            }
+        const handleChatDisconnect = async () => {
+            if (currentChatCollection === `/artifacts/${appId}/public/data/chat_sessions`) {
+                 if (chatPartnerId === 'AI_COMPANION') {
+                    aiChatHistory = [];
+                    chatPartnerId = null;
+                    chatMessagesEl.innerHTML = '';
+                    updateUIState('random-chat-disconnected');
+                    aiChatBtn.textContent = 'Chat with AI ✨';
+                } else {
+                    if (currentChatRoomId) {
+                        try {
+                            await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_sessions`, currentChatRoomId));
+                        } catch (e) {
+                            console.error("Error deleting chat session document:", e);
+                        }
+                    }
+                    if (unsubscribeChat) {
+                        unsubscribeChat();
+                    }
+                    currentChatRoomId = null;
+                    chatPartnerId = null;
+                    chatMessagesEl.innerHTML = '';
+                    updateUIState('random-chat-disconnected');
+                }
+            } else if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
+                if (unsubscribeChat) {
+                    unsubscribeChat();
+                }
+                currentChatRoomId = null;
+                groupChatMessagesEl.innerHTML = '';
+                updateUIState('group-chat-idle');
+            }
+        };
+        
+        // Handle chat matching logic
+        const findStranger = async () => {
+            handleChatDisconnect();
+            updateUIState('random-chat-waiting');
+            currentChatCollection = `/artifacts/${appId}/public/data/chat_sessions`;
+            
+            if (unsubscribeWaitingRoom) {
+                unsubscribeWaitingRoom();
+            }
 
-            const waitingRef = collection(db, `/artifacts/${appId}/public/data/chat_waiting`);
-            const q = query(waitingRef);
-            
-            const docs = (await getDocs(q)).docs;
-            const waitingPartner = docs.find(d => d.id !== userId);
+            const waitingRef = collection(db, `/artifacts/${appId}/public/data/chat_waiting`);
+            const q = query(waitingRef);
+            
+            const docs = (await getDocs(q)).docs;
+            const waitingPartner = docs.find(d => d.id !== userId);
 
-            if (waitingPartner) {
-                const partnerId = waitingPartner.id;
-                const roomName = [userId, partnerId].sort().join('_');
-                const chatSessionDocRef = doc(db, `/artifacts/${appId}/public/data/chat_sessions`, roomName);
-                
-                try {
-                    await setDoc(chatSessionDocRef, {
-                        participants: [userId, partnerId],
-                        createdAt: serverTimestamp()
-                    });
-                    if (unsubscribeWaitingRoom) {
-                         unsubscribeWaitingRoom();
-                    }
-                    await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, waitingPartner.id));
-                    await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId));
-                } catch (e) {
-                    console.error("Error creating chat session:", e);
-                    showMessage("Could not connect to a partner. Please try again.");
-                    updateUIState('random-chat-disconnected');
-                }
-            } else {
-                const myWaitingDocRef = doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId);
-                try {
-                    await setDoc(myWaitingDocRef, { timestamp: serverTimestamp() });
-                } catch (e) {
-                    console.error("Error adding to waiting room:", e);
-                    showMessage("Could not join waiting room. Please try again.");
-                    updateUIState('random-chat-disconnected');
-                    return;
-                }
+            if (waitingPartner) {
+                const partnerId = waitingPartner.id;
+                const roomName = [userId, partnerId].sort().join('_');
+                const chatSessionDocRef = doc(db, `/artifacts/${appId}/public/data/chat_sessions`, roomName);
+                
+                try {
+                    await setDoc(chatSessionDocRef, {
+                        participants: [userId, partnerId],
+                        createdAt: serverTimestamp()
+                    });
+                    if (unsubscribeWaitingRoom) {
+                        unsubscribeWaitingRoom();
+                    }
+                    await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, waitingPartner.id));
+                    await deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId));
+                } catch (e) {
+                    console.error("Error creating chat session:", e);
+                    showMessage("Could not connect to a partner. Please try again.");
+                    updateUIState('random-chat-disconnected');
+                }
+            } else {
+                const myWaitingDocRef = doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId);
+                try {
+                    await setDoc(myWaitingDocRef, { timestamp: serverTimestamp() });
+                } catch (e) {
+                    console.error("Error adding to waiting room:", e);
+                    showMessage("Could not join waiting room. Please try again.");
+                    return;
+                }
 
-                unsubscribeWaitingRoom = onSnapshot(myWaitingDocRef, (docSnap) => {
-                    if (docSnap.exists() && !currentChatRoomId) {
-                         const chatSessionsRef = collection(db, `/artifacts/${appId}/public/data/chat_sessions`);
-                         const q = query(chatSessionsRef, where("participants", "array-contains", userId));
-                         onSnapshot(q, (snapshot) => {
-                             if (!currentChatRoomId && !snapshot.empty) {
-                                  const sessionDoc = snapshot.docs[0];
-                                  currentChatRoomId = sessionDoc.id;
-                                  const participants = sessionDoc.data().participants;
-                                  chatPartnerId = participants.find(id => id !== userId);
-                                  startChatSession(currentChatRoomId, `/artifacts/${appId}/public/data/chat_sessions`);
-                                  deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId));
-                                  if (unsubscribeWaitingRoom) {
-                                      unsubscribeWaitingRoom();
-                                  }
-                             }
-                         });
-                    }
-                });
-            }
-        };
+                unsubscribeWaitingRoom = onSnapshot(myWaitingDocRef, (docSnap) => {
+                    if (docSnap.exists() && !currentChatRoomId) {
+                         const chatSessionsRef = collection(db, `/artifacts/${appId}/public/data/chat_sessions`);
+                         const q = query(chatSessionsRef, where("participants", "array-contains", userId));
+                         onSnapshot(q, (snapshot) => {
+                             if (!currentChatRoomId && !snapshot.empty) {
+                                  const sessionDoc = snapshot.docs[0];
+                                  currentChatRoomId = sessionDoc.id;
+                                  const participants = sessionDoc.data().participants;
+                                  chatPartnerId = participants.find(id => id !== userId);
+                                  startChatSession(currentChatRoomId, `/artifacts/${appId}/public/data/chat_sessions`);
+                                  deleteDoc(doc(db, `/artifacts/${appId}/public/data/chat_waiting`, userId));
+                                  if (unsubscribeWaitingRoom) {
+                                      unsubscribeWaitingRoom();
+                                  }
+                             }
+                         });
+                    }
+                });
+            }
+        };
 
-        const startChatSession = (roomId, collectionPath) => {
-            currentChatRoomId = roomId;
-            currentChatCollection = collectionPath;
-            
-            if (currentChatCollection === `/artifacts/${appId}/public/data/chat_sessions`) {
-                chatPartnerId = chatPartnerId || 'AI_COMPANION';
-                updateUIState(chatPartnerId === 'AI_COMPANION' ? 'random-chat-in-ai-chat' : 'random-chat-in-chat');
-                chatMessagesEl.innerHTML = '';
-                
-                if (chatPartnerId === 'AI_COMPANION') {
-                    const messageEl = document.createElement('div');
-                    messageEl.classList.add('bg-gray-200', 'text-gray-800', 'p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
-                    messageEl.innerHTML = `<span class="font-bold">AI Companion:</span> Hi there! I'm here to chat. What's on your mind?`;
-                    chatMessagesEl.appendChild(messageEl);
-                    aiChatHistory.push({ role: "model", parts: [{ text: messageEl.innerHTML }] });
-                    return;
-                }
-            } else if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
-                updateUIState('group-chat-in-chat');
-                groupChatMessagesEl.innerHTML = '';
-            }
+        const startChatSession = (roomId, collectionPath) => {
+            currentChatRoomId = roomId;
+            currentChatCollection = collectionPath;
+            
+            if (currentChatCollection === `/artifacts/${appId}/public/data/chat_sessions`) {
+                chatPartnerId = chatPartnerId || 'AI_COMPANION';
+                updateUIState(chatPartnerId === 'AI_COMPANION' ? 'random-chat-in-ai-chat' : 'random-chat-in-chat');
+                chatMessagesEl.innerHTML = '';
+                
+                if (chatPartnerId === 'AI_COMPANION') {
+                    const messageEl = document.createElement('div');
+                    messageEl.classList.add('bg-gray-200', 'text-gray-800', 'p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
+                    messageEl.innerHTML = `<span class="font-bold">AI Companion:</span> Hi there! I'm here to chat. What's on your mind?`;
+                    chatMessagesEl.appendChild(messageEl);
+                    aiChatHistory.push({ role: "model", parts: [{ text: messageEl.innerHTML }] });
+                    return;
+                }
+            } else if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
+                updateUIState('group-chat-in-chat');
+                groupChatMessagesEl.innerHTML = '';
+            }
 
-            const messagesRef = collection(db, `${collectionPath}/${roomId}/messages`);
-            const q = query(messagesRef);
+            const messagesRef = collection(db, `${collectionPath}/${roomId}/messages`);
+            const q = query(messagesRef);
 
-            if (unsubscribeChat) {
-                unsubscribeChat();
-            }
-            
-            const targetMessagesEl = collectionPath === `/artifacts/${appId}/public/data/group_chats` ? groupChatMessagesEl : chatMessagesEl;
+            if (unsubscribeChat) {
+                unsubscribeChat();
+            }
+            
+            const targetMessagesEl = collectionPath === `/artifacts/${appId}/public/data/group_chats` ? groupChatMessagesEl : chatMessagesEl;
 
-            unsubscribeChat = onSnapshot(q, (snapshot) => {
-                snapshot.docChanges().forEach(change => {
-                    const message = change.doc.data();
-                    if (change.type === 'added') {
-                        const messageEl = document.createElement('div');
-                        const isMine = message.authorId === userId;
-                        messageEl.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
-                        if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
-                            messageEl.classList.add(isMine ? 'group-chat-message-mine' : 'group-chat-message-other');
-                            if (isMine) {
-                                messageEl.classList.add('ml-auto');
-                            }
-                            messageEl.innerHTML = `<span class="font-bold">${isMine ? 'You' : message.authorId.substring(0, 8) + '...'}:</span> ${message.text}`;
-                        } else {
-                            if (isMine) {
-                                messageEl.classList.add('bg-indigo-500', 'text-white', 'ml-auto');
-                                messageEl.innerHTML = `<span class="font-bold">You:</span> ${message.text}`;
-                            } else {
-                                messageEl.classList.add('bg-gray-200', 'text-gray-800');
-                                messageEl.innerHTML = `<span class="font-bold">${message.authorId.substring(0, 8)}...:</span> ${message.text}`;
-                            }
-                        }
-                        
-                        targetMessagesEl.appendChild(messageEl);
-                        targetMessagesEl.scrollTop = targetMessagesEl.scrollHeight;
-                    }
-                });
-            });
-        };
+            unsubscribeChat = onSnapshot(q, (snapshot) => {
+                snapshot.docChanges().forEach(change => {
+                    const message = change.doc.data();
+                    if (change.type === 'added') {
+                        const messageEl = document.createElement('div');
+                        const isMine = message.authorId === userId;
+                        messageEl.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
+                        if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
+                            messageEl.classList.add(isMine ? 'group-chat-message-mine' : 'group-chat-message-other');
+                            if (isMine) {
+                                messageEl.classList.add('ml-auto');
+                            }
+                            messageEl.innerHTML = `<span class="font-bold">${isMine ? 'You' : message.authorId.substring(0, 8) + '...'}:</span> ${message.text}`;
+                        } else {
+                            if (isMine) {
+                                messageEl.classList.add('bg-indigo-500', 'text-white', 'ml-auto');
+                                messageEl.innerHTML = `<span class="font-bold">You:</span> ${message.text}`;
+                            } else {
+                                messageEl.classList.add('bg-gray-200', 'text-gray-800');
+                                messageEl.innerHTML = `<span class="font-bold">${message.authorId.substring(0, 8)}...:</span> ${message.text}`;
+                            }
+                        }
+                        
+                        targetMessagesEl.appendChild(messageEl);
+                        targetMessagesEl.scrollTop = targetMessagesEl.scrollHeight;
+                    }
+                });
+            });
+        };
 
-        // UI Event Listeners
-        chatTabBtn.addEventListener('click', () => {
-            chatTabBtn.classList.add('active');
-            groupChatTabBtn.classList.remove('active');
-            communityTabBtn.classList.remove('active');
-            chatSection.classList.remove('hidden');
-            groupChatSection.classList.add('hidden');
-            communitySection.classList.add('hidden');
-            if (unsubscribePosts) {
-                unsubscribePosts();
-            }
-        });
+        // UI Event Listeners
+        chatTabBtn.addEventListener('click', () => {
+            chatTabBtn.classList.add('active');
+            groupChatTabBtn.classList.remove('active');
+            communityTabBtn.classList.remove('active');
+            chatSection.classList.remove('hidden');
+            groupChatSection.classList.add('hidden');
+            communitySection.classList.add('hidden');
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
+        });
 
-        groupChatTabBtn.addEventListener('click', () => {
-            chatTabBtn.classList.remove('active');
-            groupChatTabBtn.classList.add('active');
-            communityTabBtn.classList.remove('active');
-            chatSection.classList.add('hidden');
-            groupChatSection.classList.remove('hidden');
-            communitySection.classList.add('hidden');
-            if (unsubscribePosts) {
-                unsubscribePosts();
-            }
-        });
+        groupChatTabBtn.addEventListener('click', () => {
+            chatTabBtn.classList.remove('active');
+            groupChatTabBtn.classList.add('active');
+            communityTabBtn.classList.remove('active');
+            chatSection.classList.add('hidden');
+            groupChatSection.classList.remove('hidden');
+            communitySection.classList.add('hidden');
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
+        });
 
-        communityTabBtn.addEventListener('click', () => {
-            communityTabBtn.classList.add('active');
-            chatTabBtn.classList.remove('active');
-            groupChatTabBtn.classList.remove('active');
-            chatSection.classList.add('hidden');
-            groupChatSection.classList.add('hidden');
-            communitySection.classList.remove('hidden');
-            fetchAndRenderPosts();
-        });
+        communityTabBtn.addEventListener('click', () => {
+            communityTabBtn.classList.add('active');
+            chatTabBtn.classList.remove('active');
+            groupChatTabBtn.classList.remove('active');
+            chatSection.classList.add('hidden');
+            groupChatSection.classList.add('hidden');
+            communitySection.classList.remove('hidden');
+            fetchAndRenderPosts();
+        });
 
-        findStrangerBtn.addEventListener('click', findStranger);
-        disconnectBtn.addEventListener('click', handleChatDisconnect);
-        groupDisconnectBtn.addEventListener('click', handleChatDisconnect);
+        findStrangerBtn.addEventListener('click', findStranger);
+        disconnectBtn.addEventListener('click', handleChatDisconnect);
+        groupDisconnectBtn.addEventListener('click', handleChatDisconnect);
 
-        aiChatBtn.addEventListener('click', async () => {
-            handleChatDisconnect();
-            aiChatBtn.textContent = 'End AI Chat';
-            chatPartnerId = 'AI_COMPANION';
-            startChatSession(null, `/artifacts/${appId}/public/data/chat_sessions`);
-        });
-        
-        createGroupBtn.addEventListener('click', async () => {
-            handleChatDisconnect();
-            const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
-            const groupChatDocRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, roomId);
-            try {
-                await setDoc(groupChatDocRef, {
-                    participants: [userId],
-                    createdAt: serverTimestamp(),
-                });
-                roomIdText.textContent = roomId;
-                roomIdDisplay.classList.remove('hidden');
-                startChatSession(roomId, `/artifacts/${appId}/public/data/group_chats`);
-            } catch (e) {
-                console.error("Error creating group chat:", e);
-                showMessage("Could not create chat room. Please try again.");
-            }
-        });
+        aiChatBtn.addEventListener('click', async () => {
+            handleChatDisconnect();
+            aiChatBtn.textContent = 'End AI Chat';
+            chatPartnerId = 'AI_COMPANION';
+            startChatSession(null, `/artifacts/${appId}/public/data/chat_sessions`);
+        });
+        
+        createGroupBtn.addEventListener('click', async () => {
+            handleChatDisconnect();
+            const roomId = Math.random().toString(36).substring(2, 8).toUpperCase();
+            const groupChatDocRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, roomId);
+            try {
+                await setDoc(groupChatDocRef, {
+                    participants: [userId],
+                    createdAt: serverTimestamp(),
+                });
+                roomIdText.textContent = roomId;
+                roomIdDisplay.classList.remove('hidden');
+                startChatSession(roomId, `/artifacts/${appId}/public/data/group_chats`);
+            } catch (e) {
+                console.error("Error creating group chat:", e);
+                showMessage("Could not create chat room. Please try again.");
+            }
+        });
 
-        joinGroupBtn.addEventListener('click', async () => {
-            handleChatDisconnect();
-            const roomId = joinRoomInput.value.trim().toUpperCase();
-            if (!roomId) {
-                showMessage("Please enter a room ID.");
-                return;
-            }
-            const groupChatDocRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, roomId);
-            try {
-                const docSnap = await getDoc(groupChatDocRef);
-                if (docSnap.exists()) {
-                    await updateDoc(groupChatDocRef, {
-                        participants: [...docSnap.data().participants, userId]
-                    });
-                    startChatSession(roomId, `/artifacts/${appId}/public/data/group_chats`);
-                } else {
-                    showMessage("Room not found. Please check the ID and try again.");
-                }
-            } catch (e) {
-                console.error("Error joining group chat:", e);
-                showMessage("Could not join chat room. Please try again.");
-            }
-        });
+        joinGroupBtn.addEventListener('click', async () => {
+            handleChatDisconnect();
+            const roomId = joinRoomInput.value.trim().toUpperCase();
+            if (!roomId) {
+                showMessage("Please enter a room ID.");
+                return;
+            }
+            const groupChatDocRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, roomId);
+            try {
+                const docSnap = await getDoc(groupChatDocRef);
+                if (docSnap.exists()) {
+                    await updateDoc(groupChatDocRef, {
+                        participants: [...docSnap.data().participants, userId]
+                    });
+                    startChatSession(roomId, `/artifacts/${appId}/public/data/group_chats`);
+                } else {
+                    showMessage("Room not found. Please check the ID and try again.");
+                }
+            } catch (e) {
+                console.error("Error joining group chat:", e);
+                showMessage("Could not join chat room. Please try again.");
+            }
+        });
 
-        const retryWithBackoff = async (func, maxRetries = 3, initialDelay = 1000) => {
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    const result = await func();
-                    return result;
-                } catch (error) {
-                    if (i === maxRetries - 1) {
-                        throw error;
-                    }
-                    const delay = initialDelay * Math.pow(2, i);
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                }
-            }
-        };
-        
-        const sendMessage = async () => {
-            const messageText = chatInput.value.trim();
-            if (messageText === '') {
-                return;
-            }
+        const retryWithBackoff = async (func, maxRetries = 3, initialDelay = 1000) => {
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    const result = await func();
+                    return result;
+                } catch (error) {
+                    if (i === maxRetries - 1) {
+                        throw error;
+                    }
+                    const delay = initialDelay * Math.pow(2, i);
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                }
+            }
+        };
+        
+        const sendMessage = async () => {
+            let messageText = '';
+            let inputElement = null;
 
-            if (chatPartnerId === 'AI_COMPANION') {
-                const myMessageEl = document.createElement('div');
-                myMessageEl.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2', 'bg-indigo-500', 'text-white', 'ml-auto');
-                myMessageEl.innerHTML = `<span class="font-bold">You:</span> ${messageText}`;
-                chatMessagesEl.appendChild(myMessageEl);
-                chatInput.value = '';
-                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-                
-                aiChatHistory.push({ role: "user", parts: [{ text: messageText }] });
-                
-                try {
-                    const payload = {
-                        contents: aiChatHistory,
-                        systemInstruction: {
-                            parts: [{ text: "You are a friendly, anonymous chat companion. Your goal is to have a pleasant conversation with the user without revealing any personal information about yourself, such as gender, location, or name. Do not ask for the user's personal information either. Your responses should be conversational and supportive. Keep your responses concise and to the point." }]
-                        }
-                    };
+            if (currentChatCollection === `/artifacts/${appId}/public/data/chat_sessions`) {
+                messageText = chatInput.value.trim();
+                inputElement = chatInput;
+            } else if (currentChatCollection === `/artifacts/${appId}/public/data/group_chats`) {
+                messageText = groupChatInput.value.trim();
+                inputElement = groupChatInput;
+            }
 
-                    const result = await retryWithBackoff(async () => {
-                         const response = await fetch(TEXT_API_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        return await response.json();
-                    });
-                    
-                    const aiResponseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm having trouble thinking right now. Please try again.";
-                    
-                    const aiMessageEl = document.createElement('div');
-                    aiMessageEl.classList.add('bg-gray-200', 'text-gray-800', 'p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
-                    aiMessageEl.innerHTML = `<span class="font-bold">AI Companion:</span> ${aiResponseText}`;
-                    chatMessagesEl.appendChild(aiMessageEl);
-                    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
-                    aiChatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
+            if (messageText === '') {
+                return;
+            }
 
-                } catch (error) {
-                    console.error('Error with Gemini API:', error);
-                    showMessage("Could not connect to the AI. Please try again.");
-                }
-            } else {
-                if (!currentChatRoomId) {
-                    showMessage("You are not connected to a chat.");
-                    return;
-                }
+            if (chatPartnerId === 'AI_COMPANION') {
+                const myMessageEl = document.createElement('div');
+                myMessageEl.classList.add('p-3', 'rounded-lg', 'max-w-xs', 'mb-2', 'bg-indigo-500', 'text-white', 'ml-auto');
+                myMessageEl.innerHTML = `<span class="font-bold">You:</span> ${messageText}`;
+                chatMessagesEl.appendChild(myMessageEl);
+                chatInput.value = '';
+                chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+                
+                aiChatHistory.push({ role: "user", parts: [{ text: messageText }] });
+                
+                try {
+                    const payload = {
+                        contents: aiChatHistory,
+                        systemInstruction: {
+                            parts: [{ text: "You are a friendly, anonymous chat companion. Your goal is to have a pleasant conversation with the user without revealing any personal information about yourself, such as gender, location, or name. Do not ask for the user's personal information either. Your responses should be conversational and supportive. Keep your responses concise and to the point." }]
+                        }
+                    };
 
-                try {
-                    await addDoc(collection(db, `/artifacts/${appId}/public/data/chat_sessions/${currentChatRoomId}/messages`), {
-                        text: messageText,
-                        authorId: userId,
-                        timestamp: serverTimestamp()
-                    });
-                    chatInput.value = '';
-                } catch (e) {
-                    console.error("Error sending message:", e);
-                    showMessage("Could not send message. Please try again.");
-                }
-            }
-        };
+                    const result = await retryWithBackoff(async () => {
+                        const response = await fetch(TEXT_API_URL, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify(payload)
+                        });
+                        return await response.json();
+                    });
+                    
+                    const aiResponseText = result.candidates?.[0]?.content?.parts?.[0]?.text || "Sorry, I'm having trouble thinking right now. Please try again.";
+                    
+                    const aiMessageEl = document.createElement('div');
+                    aiMessageEl.classList.add('bg-gray-200', 'text-gray-800', 'p-3', 'rounded-lg', 'max-w-xs', 'mb-2');
+                    aiMessageEl.innerHTML = `<span class="font-bold">AI Companion:</span> ${aiResponseText}`;
+                    chatMessagesEl.appendChild(aiMessageEl);
+                    chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+                    aiChatHistory.push({ role: "model", parts: [{ text: aiResponseText }] });
 
-        const sendGroupMessage = async () => {
-            const messageText = groupChatInput.value.trim();
-            if (messageText === '') {
-                return;
-            }
+                } catch (error) {
+                    console.error('Error with Gemini API:', error);
+                    showMessage("Could not connect to the AI. Please try again.");
+                }
+            } else {
+                if (!currentChatRoomId) {
+                    showMessage("You are not connected to a chat.");
+                    return;
+                }
+                
+                const messagesCollectionRef = collection(db, `${currentChatCollection}/${currentChatRoomId}/messages`);
 
-            if (!currentChatRoomId) {
-                showMessage("You are not in a group chat.");
-                return;
-            }
+                try {
+                    await addDoc(messagesCollectionRef, {
+                        text: messageText,
+                        authorId: userId,
+                        createdAt: serverTimestamp()
+                    });
+                    inputElement.value = '';
+                } catch (e) {
+                    console.error("Error sending message:", e);
+                    showMessage("Could not send message. Please try again.");
+                }
+            }
+        };
+        
+        sendBtn.addEventListener('click', sendMessage);
+        chatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        
+        groupSendBtn.addEventListener('click', sendMessage);
+        groupChatInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
 
-            try {
-                const docRef = doc(db, `/artifacts/${appId}/public/data/group_chats`, currentChatRoomId);
-                await addDoc(collection(docRef, "messages"), {
-                    text: messageText,
-                    authorId: userId,
-                    timestamp: serverTimestamp()
-                });
-                groupChatInput.value = '';
-            } catch (e) {
-                console.error("Error sending group message:", e);
-                showMessage("Could not send message. Please try again.");
-            }
-        };
+        newPostForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const title = postTitleInput.value.trim();
+            const content = postContentInput.value.trim();
 
-        // Add event listener for the Enter key on the chat input field
-        chatInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault(); // Prevents a new line from being created
-                sendMessage();
-            }
-        });
-        
-        groupChatInput.addEventListener('keydown', (event) => {
-            if (event.key === 'Enter') {
-                event.preventDefault();
-                sendGroupMessage();
-            }
-        });
-        
-        sendBtn.addEventListener('click', sendMessage);
-        groupSendBtn.addEventListener('click', sendGroupMessage);
+            if (!title || !content) {
+                showMessage("Please enter both a title and content for your story.");
+                return;
+            }
 
-        // Community logic
-        const fetchAndRenderPosts = () => {
-            const postsRef = collection(db, `/artifacts/${appId}/public/data/posts`);
-            const q = query(postsRef);
+            try {
+                await addDoc(collection(db, `/artifacts/${appId}/public/data/posts`), {
+                    title,
+                    content,
+                    authorId: userId,
+                    createdAt: serverTimestamp()
+                });
+                postTitleInput.value = '';
+                postContentInput.value = '';
+                showMessage("Story published successfully!");
+            } catch (e) {
+                console.error("Error adding document:", e);
+                showMessage("Error publishing story. Please try again.");
+            }
+        });
 
-            if (unsubscribePosts) {
-                unsubscribePosts();
-            }
+        const fetchAndRenderPosts = () => {
+            if (unsubscribePosts) {
+                unsubscribePosts();
+            }
+            postsListEl.innerHTML = '<p class="text-center text-gray-500">Loading stories...</p>';
 
-            unsubscribePosts = onSnapshot(q, (snapshot) => {
-                postsListEl.innerHTML = '<h2 class="text-2xl font-semibold mb-4 text-gray-800">Recent Stories</h2>';
-                if (snapshot.empty) {
-                    postsListEl.innerHTML += '<p class="text-gray-500 text-center">No posts yet. Be the first to share!</p>';
-                }
-                snapshot.forEach(postDoc => {
-                    const postData = postDoc.data();
-                    const postEl = document.createElement('div');
-                    postEl.classList.add('bg-gray-100', 'rounded-xl', 'p-4', 'mb-4', 'shadow-sm', 'flex', 'items-start');
-                    
-                    const imageHtml = postData.featuredImage ? `<img src="${postData.featuredImage}" alt="Featured image" class="post-image-thumb">` : '';
+            const postsRef = collection(db, `/artifacts/${appId}/public/data/posts`);
+            unsubscribePosts = onSnapshot(postsRef, (snapshot) => {
+                postsListEl.innerHTML = '';
+                if (snapshot.empty) {
+                    postsListEl.innerHTML = '<p class="text-center text-gray-500">No stories found. Be the first to publish!</p>';
+                    return;
+                }
 
-                    postEl.innerHTML = `
-                        ${imageHtml}
-                        <div class="flex-1">
-                            <h3 class="text-lg font-bold text-indigo-600">${postData.title}</h3>
-                            <p class="text-sm text-gray-500 mb-2">By ${postData.authorId.substring(0, 8)}... | ${postData.timestamp.toDate().toLocaleString()}</p>
-                            <p class="text-gray-700 mb-4">${postData.content.substring(0, 150)}${postData.content.length > 150 ? '...' : ''}</p>
-                            <button class="btn-secondary px-4 py-1 text-sm view-post-btn" data-post-id="${postDoc.id}">View Post & Comments</button>
-                        </div>
-                    `;
-                    postsListEl.appendChild(postEl);
-                });
+                const allPosts = [];
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    allPosts.push({ id: doc.id, ...data });
+                });
 
-                document.querySelectorAll('.view-post-btn').forEach(button => {
-                    button.addEventListener('click', (e) => {
-                        const postId = e.target.dataset.postId;
-                        viewPost(postId);
-                    });
-                });
-            });
-        };
-        
-        newPostForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const title = postTitleInput.value.trim();
-            const content = postContentInput.value.trim();
-            if (!title || !content) {
-                showMessage("Title and content are required to publish a post.");
-                return;
-            }
+                allPosts.sort((a, b) => b.createdAt.toDate() - a.createdAt.toDate());
 
-            try {
-                await addDoc(collection(db, `/artifacts/${appId}/public/data/posts`), {
-                    title: title,
-                    content: content,
-                    authorId: userId,
-                    timestamp: serverTimestamp()
-                });
-                postTitleInput.value = '';
-                postContentInput.value = '';
-            } catch (e) {
-                console.error("Error adding document: ", e);
-                showMessage("Could not publish story. Please try again.");
-            }
-        });
+                allPosts.forEach(post => {
+                    const postElement = document.createElement('div');
+                    postElement.classList.add('bg-white', 'rounded-xl', 'p-6', 'shadow-md', 'mb-4');
+                    postElement.innerHTML = `
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">${post.title}</h3>
+                        <p class="text-sm text-gray-500 mb-4">By ${post.authorId.substring(0, 8)}...</p>
+                        <p class="text-gray-700">${post.content}</p>
+                    `;
+                    postsListEl.appendChild(postElement);
+                });
+            });
+        };
 
+        // Main initialization logic
+        const initApp = () => {
+            try {
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+                
+                onAuthStateChanged(auth, async (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        userIdDisplay.textContent = `User ID: ${userId.substring(0, 8)}...`;
+                        loadingSpinner.classList.add('hidden');
+                        updateUIState('random-chat-disconnected');
+                    } else {
+                        userIdDisplay.textContent = 'Signed out';
+                        loadingSpinner.classList.add('hidden');
+                    }
+                });
 
-        const viewPost = async (postId) => {
-            const postDocRef = doc(db, `/artifacts/${appId}/public/data/posts`, postId);
-            const postDocSnap = await getDoc(postDocRef);
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+            } catch (e) {
+                console.error('Firebase initialization error:', e);
+                userIdDisplay.textContent = 'Auth Error';
+                loadingSpinner.classList.add('hidden');
+            }
+        };
 
-            if (!postDocSnap.exists()) {
-                showMessage("Post not found.");
-                return;
-            }
-            
-            const postData = postDocSnap.data();
-
-            const postView = document.createElement('div');
-            postView.classList.add('bg-white', 'rounded-xl', 'shadow-lg', 'p-6', 'w-full', 'max-w-xl', 'mx-auto', 'my-8');
-            
-            const imageHtml = postData.featuredImage ? `<img src="${postData.featuredImage}" alt="Featured image" class="image-preview" style="display:block;">` : '';
-
-            postView.innerHTML = `
-                <div class="flex justify-end">
-                    <button class="text-gray-500 hover:text-gray-800">&times;</button>
-                </div>
-                <h2 class="text-2xl font-bold text-indigo-600 mb-2">${postData.title}</h2>
-                <p class="text-sm text-gray-500 mb-4">By ${postData.authorId.substring(0, 8)}... | ${postData.timestamp.toDate().toLocaleString()}</p>
-                ${imageHtml}
-                <div class="flex space-x-2 items-center mb-4">
-                    <button class="btn-secondary text-sm" id="summarize-btn">Summarize Post ✨</button>
-                    <span id="summary-text" class="text-gray-600 text-sm italic hidden"></span>
-                </div>
-                <p class="text-gray-700 mb-6">${postData.content}</p>
-                <h3 class="text-xl font-semibold mb-2">Comments</h3>
-                <div id="comments-list" class="space-y-4 mb-4"></div>
-                <div class="flex space-x-2">
-                    <input type="text" id="comment-input" class="flex-1 border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Write a comment...">
-                    <button class="btn-primary px-6 py-2" id="submit-comment-btn">Comment</button>
-                </div>
-            `;
-            
-            postsListEl.innerHTML = '';
-            postsListEl.appendChild(postView);
-
-            postView.querySelector('button').addEventListener('click', () => {
-                postsListEl.innerHTML = '';
-                fetchAndRenderPosts();
-            });
-
-            const commentsListEl = postView.querySelector('#comments-list');
-            const commentInput = postView.querySelector('#comment-input');
-            const submitCommentBtn = postView.querySelector('#submit-comment-btn');
-            const summarizeBtn = postView.querySelector('#summarize-btn');
-            const summaryTextEl = postView.querySelector('#summary-text');
-            const commentsRef = collection(db, `/artifacts/${appId}/public/data/posts/${postId}/comments`);
-            
-            summarizeBtn.addEventListener('click', async () => {
-                loadingMessage.textContent = "Summarizing post...";
-                loadingModal.classList.remove('hidden');
-
-                try {
-                    const prompt = `Summarize the following blog post content concisely and in a helpful tone. The summary should be a single paragraph of no more than three sentences. Content: ${postData.content}`;
-                    const payload = {
-                        contents: [{ parts: [{ text: prompt }] }]
-                    };
-                    const result = await retryWithBackoff(async () => {
-                         const response = await fetch(TEXT_API_URL, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-                        return await response.json();
-                    });
-                    const generatedSummary = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (generatedSummary) {
-                        summaryTextEl.textContent = generatedSummary;
-                        summaryTextEl.classList.remove('hidden');
-                        summarizeBtn.classList.add('hidden');
-                    } else {
-                        showMessage("Could not generate a summary. Please try again.");
-                    }
-
-                } catch (error) {
-                    console.error('Error with Gemini API:', error);
-                    showMessage("Could not generate a summary. Please try again.");
-                } finally {
-                    loadingModal.classList.add('hidden');
-                }
-            });
-
-            onSnapshot(commentsRef, (snapshot) => {
-                commentsListEl.innerHTML = '';
-                snapshot.forEach(commentDoc => {
-                    const commentData = commentDoc.data();
-                    const commentEl = document.createElement('div');
-                    commentEl.classList.add('bg-gray-200', 'p-3', 'rounded-lg');
-                    commentEl.innerHTML = `
-                        <p class="text-sm font-semibold">${commentData.authorId.substring(0, 8)}...</p>
-                        <p>${commentData.content}</p>
-                    `;
-                    commentsListEl.appendChild(commentEl);
-                });
-            });
-
-            submitCommentBtn.addEventListener('click', async () => {
-                const commentText = commentInput.value.trim();
-                if (commentText) {
-                    await addDoc(commentsRef, {
-                        content: commentText,
-                        authorId: userId,
-                        timestamp: serverTimestamp()
-                    });
-                    commentInput.value = '';
-                }
-            });
-        };
-
-        // Firebase Initialization
-        window.onload = async () => {
-            try {
-                // Set debug logging for Firestore
-                setLogLevel('debug');
-                
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        userIdDisplay.textContent = `Your ID: ${userId}`;
-                        loadingSpinner.classList.add('hidden');
-                        updateUIState('random-chat-disconnected');
-                        
-                        const chatSessionsRef = collection(db, `/artifacts/${appId}/public/data/chat_sessions`);
-                        const q = query(chatSessionsRef, where("participants", "array-contains", userId));
-
-                        const querySnapshot = await getDocs(q);
-                        if (!querySnapshot.empty) {
-                            const sessionDoc = querySnapshot.docs[0];
-                            const participants = sessionDoc.data().participants;
-                            chatPartnerId = participants.find(id => id !== userId);
-                            startChatSession(sessionDoc.id, `/artifacts/${appId}/public/data/chat_sessions`);
-                        }
-                        
-                        fetchAndRenderPosts();
-                    } else {
-                        if (initialAuthToken) {
-                            await signInWithCustomToken(auth, initialAuthToken);
-                        } else {
-                            await signInAnonymously(auth);
-                        }
-                    }
-                });
-            } catch (e) {
-                console.error("Firebase initialization error: ", e);
-                userIdDisplay.textContent = "Error authenticating. Check console.";
-                loadingSpinner.classList.add('hidden');
-            }
-        };
-
-    </script>
+        initApp();
+    </script>
 </body>
 </html>
-
-
