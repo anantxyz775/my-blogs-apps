@@ -1,147 +1,164 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogs</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f3f4f6;
-            color: #1f2937;
-        }
-        .container {
-            max-width: 800px;
-        }
-        .tab-button.active {
-            background-color: #4f46e5;
-            color: white;
-        }
-        .btn-primary {
-            @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
-        }
-        .btn-secondary {
-            @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300;
-        }
-        .modal {
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-        .loading-animation {
-            display: inline-block;
-            animation: pulse 1.5s infinite ease-in-out;
-            transform-origin: center;
-        }
-        @keyframes pulse {
-            0% { transform: scale(0.9); opacity: 0.8; }
-            50% { transform: scale(1.1); opacity: 1; }
-            100% { transform: scale(0.9); opacity: 0.8; }
-        }
-        .image-preview {
-            width: 100%;
-            height: 250px;
-            object-fit: cover;
-            border-radius: 0.75rem;
-            margin-bottom: 1rem;
-            display: none;
-        }
-        .post-image-thumb {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 0.5rem;
-            margin-right: 0.5rem;
-        }
-        .group-chat-message-other {
-            background-color: #e2e8f0;
-            color: #1f2937;
-        }
-        .group-chat-message-mine {
-            background-color: #4f46e5;
-            color: white;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Blogs & Chat</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
+.container { max-width: 800px; }
+.tab-button.active { background-color: #4f46e5; color: white; }
+.btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300; }
+.btn-secondary { @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300; }
+.modal { background-color: rgba(0, 0, 0, 0.5); }
+.loading-animation { display: inline-block; animation: pulse 1.5s infinite ease-in-out; transform-origin: center; }
+@keyframes pulse { 0% { transform: scale(0.9); opacity:0.8; } 50% { transform: scale(1.1); opacity:1; } 100% { transform: scale(0.9); opacity:0.8; } }
+.image-preview { width: 100%; height: 250px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 1rem; display:none; }
+.post-image-thumb { width:60px; height:60px; object-fit:cover; border-radius:0.5rem; margin-right:0.5rem; }
+.group-chat-message-other { background-color:#e2e8f0; color:#1f2937; }
+.group-chat-message-mine { background-color:#4f46e5; color:white; }
+</style>
 </head>
 <body>
-
 <div class="container mx-auto p-4 md:p-8">
-    <header class="text-center mb-8">
-        <h1 class="text-4xl font-bold text-indigo-600 mb-2">Blogs</h1>
-        <p class="text-lg text-gray-600">Write, Share, Connect.</p>
-    </header>
+<header class="text-center mb-8">
+    <h1 class="text-4xl font-bold text-indigo-600 mb-2">Blogs & Chat</h1>
+    <p class="text-lg text-gray-600">Write, Share, Connect, Chat.</p>
+</header>
 
+<!-- Tabs -->
+<div class="flex justify-center gap-4 mb-6">
+    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="posts">Posts</button>
+    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="random-chat">Random Chat</button>
+    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="ai-chat">AI Chat</button>
+</div>
+
+<!-- Sections -->
+<div id="posts-section" class="tab-section">
     <div class="bg-white rounded-xl shadow-lg p-6">
-        <!-- Tabs and sections omitted for brevity; same as your original code -->
+        <h2 class="text-xl font-bold mb-4">Community Posts</h2>
+        <div id="posts-list">Loading posts...</div>
     </div>
 </div>
 
-<!-- Modals omitted for brevity; same as your original code -->
+<div id="random-chat-section" class="tab-section hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold mb-4">Random Stranger Chat</h2>
+        <div id="random-chat-window" class="h-64 overflow-y-auto mb-4 border p-2 rounded"></div>
+        <input id="random-chat-input" type="text" placeholder="Type a message..." class="w-full p-2 border rounded mb-2">
+        <button id="send-random-chat" class="btn-primary w-full">Send</button>
+    </div>
+</div>
 
-<!-- Firebase Imports -->
+<div id="ai-chat-section" class="tab-section hidden">
+    <div class="bg-white rounded-xl shadow-lg p-6">
+        <h2 class="text-xl font-bold mb-4">AI Chat</h2>
+        <div id="ai-chat-window" class="h-64 overflow-y-auto mb-4 border p-2 rounded"></div>
+        <input id="ai-chat-input" type="text" placeholder="Ask AI..." class="w-full p-2 border rounded mb-2">
+        <button id="send-ai-chat" class="btn-primary w-full">Send</button>
+    </div>
+</div>
+
+</div>
+
+<!-- Firebase -->
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, addDoc, serverTimestamp, getDocs, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // ====== Your Firebase Configuration ======
-    const appId = 'blogs-d6e36'; // Optional: can be used for collection paths
-    const firebaseConfig = {
-        apiKey: "AIzaSyBFwj2eyLRhnolyfXCmEXmPCdBqen5epH4",
-        authDomain: "blogs-d6e36.firebaseapp.com",
-        projectId: "blogs-d6e36",
-        storageBucket: "blogs-d6e36.appspot.com",
-        messagingSenderId: "919635572942",
-        appId: "1:919635572942:web:58d516d3680b28801eb89f",
-        measurementId: "G-8JR0P4VJ03"
-    };
-    const initialAuthToken = null; // Use only if you have a pre-generated token
-    const TEXT_API_KEY = ""; // Insert your Gemini API key here for AI features
+const firebaseConfig = {
+    apiKey: "AIzaSyBFwj2eyLRhnolyfXCmEXmPCdBqen5epH4",
+    authDomain: "blogs-d6e36.firebaseapp.com",
+    projectId: "blogs-d6e36",
+    storageBucket: "blogs-d6e36.appspot.com",
+    messagingSenderId: "919635572942",
+    appId: "1:919635572942:web:58d516d3680b28801eb89f"
+};
 
-    let db, auth;
-    let userId;
-    let chatPartnerId = null;
-    let currentChatRoomId = null;
-    let currentChatCollection = null;
-    let unsubscribeChat = null;
-    let unsubscribeWaitingRoom = null;
-    let unsubscribePosts = null;
-    let aiChatHistory = [];
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+let userId = null;
 
-    const TEXT_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=" + TEXT_API_KEY;
+onAuthStateChanged(auth, async user => {
+    if(user) { userId = user.uid; loadPosts(); setupRandomChat(); setupAIChat(); }
+    else { await signInAnonymously(auth); }
+});
 
-    // ====== The rest of your JavaScript code remains exactly the same ======
-    // Chat logic, AI chat, group chat, community posts, event listeners, etc.
+// ===== Tabs =====
+const tabButtons = document.querySelectorAll('.tab-button');
+const tabSections = document.querySelectorAll('.tab-section');
+tabButtons.forEach(btn => {
+    btn.addEventListener('click', () => {
+        tabButtons.forEach(b => b.classList.remove('active')); btn.classList.add('active');
+        const target = btn.dataset.tab;
+        tabSections.forEach(sec => sec.classList.add('hidden'));
+        document.getElementById(`${target}-section`).classList.remove('hidden');
+    });
+});
+tabButtons[0].click(); // default active tab
 
-    window.onload = async () => {
-        try {
-            setLogLevel('debug');
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
+// ===== Posts =====
+async function loadPosts() {
+    const postsCol = collection(db, "posts");
+    onSnapshot(postsCol, snapshot => {
+        const postsDiv = document.getElementById('posts-list');
+        postsDiv.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            postsDiv.innerHTML += `<div class="border p-2 rounded mb-2">
+                <strong>${data.author || 'Anonymous'}</strong>: ${data.content}
+            </div>`;
+        });
+    });
+}
 
-            onAuthStateChanged(auth, async (user) => {
-                if (user) {
-                    userId = user.uid;
-                    document.getElementById('user-id-display').textContent = `Your ID: ${userId}`;
-                    document.getElementById('loading-spinner').classList.add('hidden');
-                    // Initialize UI state and fetch posts
-                    updateUIState('random-chat-disconnected');
-                    fetchAndRenderPosts();
-                } else {
-                    if (initialAuthToken) {
-                        await signInWithCustomToken(auth, initialAuthToken);
-                    } else {
-                        await signInAnonymously(auth);
-                    }
-                }
-            });
-        } catch (e) {
-            console.error("Firebase initialization error: ", e);
-            document.getElementById('user-id-display').textContent = "Error authenticating. Check console.";
-            document.getElementById('loading-spinner').classList.add('hidden');
-        }
-    };
+// ===== Random Chat =====
+function setupRandomChat() {
+    const chatWindow = document.getElementById('random-chat-window');
+    const chatInput = document.getElementById('random-chat-input');
+    const sendBtn = document.getElementById('send-random-chat');
+    const chatCol = collection(db, "random-chat");
+
+    onSnapshot(chatCol, snapshot => {
+        chatWindow.innerHTML = '';
+        snapshot.forEach(doc => {
+            const data = doc.data();
+            const cls = data.senderId===userId?'group-chat-message-mine':'group-chat-message-other';
+            chatWindow.innerHTML += `<div class="p-2 mb-1 rounded ${cls}">${data.message}</div>`;
+        });
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+
+    sendBtn.addEventListener('click', async () => {
+        const msg = chatInput.value.trim();
+        if(!msg) return;
+        await addDoc(chatCol, { message: msg, senderId: userId, timestamp: serverTimestamp() });
+        chatInput.value = '';
+    });
+}
+
+// ===== AI Chat =====
+function setupAIChat() {
+    const chatWindow = document.getElementById('ai-chat-window');
+    const chatInput = document.getElementById('ai-chat-input');
+    const sendBtn = document.getElementById('send-ai-chat');
+
+    sendBtn.addEventListener('click', async () => {
+        const question = chatInput.value.trim();
+        if(!question) return;
+        chatWindow.innerHTML += `<div class="p-2 mb-1 rounded group-chat-message-mine">${question}</div>`;
+        chatInput.value = '';
+
+        // Dummy AI response for now
+        const aiResponse = "🤖 AI Response: " + question.split('').reverse().join('');
+        chatWindow.innerHTML += `<div class="p-2 mb-1 rounded group-chat-message-other">${aiResponse}</div>`;
+        chatWindow.scrollTop = chatWindow.scrollHeight;
+    });
+}
 </script>
 </body>
 </html>
