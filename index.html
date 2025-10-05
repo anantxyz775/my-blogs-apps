@@ -1,164 +1,128 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Blogs & Chat</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; color: #1f2937; }
-.container { max-width: 800px; }
-.tab-button.active { background-color: #4f46e5; color: white; }
-.btn-primary { @apply bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300; }
-.btn-secondary { @apply bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg shadow-md transition duration-300; }
-.modal { background-color: rgba(0, 0, 0, 0.5); }
-.loading-animation { display: inline-block; animation: pulse 1.5s infinite ease-in-out; transform-origin: center; }
-@keyframes pulse { 0% { transform: scale(0.9); opacity:0.8; } 50% { transform: scale(1.1); opacity:1; } 100% { transform: scale(0.9); opacity:0.8; } }
-.image-preview { width: 100%; height: 250px; object-fit: cover; border-radius: 0.75rem; margin-bottom: 1rem; display:none; }
-.post-image-thumb { width:60px; height:60px; object-fit:cover; border-radius:0.5rem; margin-right:0.5rem; }
-.group-chat-message-other { background-color:#e2e8f0; color:#1f2937; }
-.group-chat-message-mine { background-color:#4f46e5; color:white; }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Config Check</title>
+    <!-- Load Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Use Inter font */
+        body { font-family: 'Inter', sans-serif; }
+    </style>
 </head>
-<body>
-<div class="container mx-auto p-4 md:p-8">
-<header class="text-center mb-8">
-    <h1 class="text-4xl font-bold text-indigo-600 mb-2">Blogs & Chat</h1>
-    <p class="text-lg text-gray-600">Write, Share, Connect, Chat.</p>
-</header>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-4">
+    <div id="app-container" class="bg-white p-8 rounded-xl shadow-2xl w-full max-w-lg transition-all duration-300">
+        <h1 class="text-3xl font-bold text-center text-indigo-700 mb-6">Firebase Status Checker</h1>
+        <p class="text-center text-gray-600 mb-8">Initializing Firebase with your provided configuration and signing in...</p>
 
-<!-- Tabs -->
-<div class="flex justify-center gap-4 mb-6">
-    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="posts">Posts</button>
-    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="random-chat">Random Chat</button>
-    <button class="tab-button btn-secondary px-4 py-2 rounded" data-tab="ai-chat">AI Chat</button>
-</div>
+        <!-- Status Display Area -->
+        <div id="status-card" class="bg-indigo-50 border-l-4 border-indigo-500 text-indigo-900 p-4 rounded-lg">
+            <p id="status-message" class="font-medium">Loading...</p>
+        </div>
 
-<!-- Sections -->
-<div id="posts-section" class="tab-section">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-bold mb-4">Community Posts</h2>
-        <div id="posts-list">Loading posts...</div>
+        <!-- Details Display Area -->
+        <div id="details-section" class="mt-6 space-y-4 hidden">
+            <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-inner">
+                <p class="text-sm font-semibold text-gray-500">Canvas App ID</p>
+                <code id="app-id-display" class="block mt-1 text-sm text-gray-800 font-mono break-all"></code>
+            </div>
+            <div class="p-4 bg-white rounded-lg border border-gray-200 shadow-inner">
+                <p class="text-sm font-semibold text-gray-500">Authenticated User ID</p>
+                <code id="user-id-display" class="block mt-1 text-base text-green-700 font-mono break-all font-bold"></code>
+            </div>
+        </div>
+        
+        <!-- Error Display Area -->
+        <div id="error-section" class="mt-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg hidden">
+            <p class="font-bold">Error During Initialization</p>
+            <p id="error-message" class="mt-1 text-sm"></p>
+        </div>
     </div>
-</div>
 
-<div id="random-chat-section" class="tab-section hidden">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-bold mb-4">Random Stranger Chat</h2>
-        <div id="random-chat-window" class="h-64 overflow-y-auto mb-4 border p-2 rounded"></div>
-        <input id="random-chat-input" type="text" placeholder="Type a message..." class="w-full p-2 border rounded mb-2">
-        <button id="send-random-chat" class="btn-primary w-full">Send</button>
-    </div>
-</div>
+    <script type="module">
+        // Mandatory imports for Firebase services
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-<div id="ai-chat-section" class="tab-section hidden">
-    <div class="bg-white rounded-xl shadow-lg p-6">
-        <h2 class="text-xl font-bold mb-4">AI Chat</h2>
-        <div id="ai-chat-window" class="h-64 overflow-y-auto mb-4 border p-2 rounded"></div>
-        <input id="ai-chat-input" type="text" placeholder="Ask AI..." class="w-full p-2 border rounded mb-2">
-        <button id="send-ai-chat" class="btn-primary w-full">Send</button>
-    </div>
-</div>
+        // Global variables provided by the environment (using the user's data for configuration)
+        // We structure this to follow the mandatory access pattern, providing fallbacks.
+        const providedFirebaseConfig = {
+            apiKey: "AIzaSyBFwj2eyLRhnolyfXCmEXmPCdBqen5epH4",
+            authDomain: "blogs-d6e36.firebaseapp.com",
+            projectId: "blogs-d6e36",
+            storageBucket: "blogs-d6e36.firebasestorage.app",
+            messagingSenderId: "919635572942",
+            appId: "1:919635572942:web:58d516d3680b28801eb89f",
+            measurementId: "G-8JR0P4VJ03"
+        };
+        
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        // Use the user's config, but ensure it's accessed via the global structure if available
+        const firebaseConfig = typeof __firebase_config !== 'undefined' 
+            ? JSON.parse(__firebase_config) 
+            : providedFirebaseConfig;
+        
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-</div>
+        const statusMessage = document.getElementById('status-message');
+        const detailsSection = document.getElementById('details-section');
+        const appIdDisplay = document.getElementById('app-id-display');
+        const userIdDisplay = document.getElementById('user-id-display');
+        const errorSection = document.getElementById('error-section');
+        const errorMessage = document.getElementById('error-message');
 
-<!-- Firebase -->
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-import { getFirestore, collection, addDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        /**
+         * Initializes Firebase and authenticates the user.
+         */
+        async function initializeFirebase() {
+            try {
+                statusMessage.textContent = "1. Initializing Firebase application...";
+                const app = initializeApp(firebaseConfig);
+                const auth = getAuth(app);
+                getFirestore(app); // Initialize Firestore instance too
 
-const firebaseConfig = {
-    apiKey: "AIzaSyBFwj2eyLRhnolyfXCmEXmPCdBqen5epH4",
-    authDomain: "blogs-d6e36.firebaseapp.com",
-    projectId: "blogs-d6e36",
-    storageBucket: "blogs-d6e36.appspot.com",
-    messagingSenderId: "919635572942",
-    appId: "1:919635572942:web:58d516d3680b28801eb89f"
-};
+                statusMessage.textContent = "2. Attempting user authentication...";
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
-let userId = null;
+                let userCredential;
+                if (initialAuthToken) {
+                    // Use custom token if provided by the environment
+                    userCredential = await signInWithCustomToken(auth, initialAuthToken);
+                    statusMessage.textContent = "3. Successfully signed in with custom token!";
+                } else {
+                    // Fallback to anonymous sign-in
+                    userCredential = await signInAnonymously(auth);
+                    statusMessage.textContent = "3. Successfully signed in anonymously (No custom token provided).";
+                }
 
-onAuthStateChanged(auth, async user => {
-    if(user) { userId = user.uid; loadPosts(); setupRandomChat(); setupAIChat(); }
-    else { await signInAnonymously(auth); }
-});
+                const userId = userCredential.user.uid;
+                
+                // Update UI with success details
+                document.getElementById('status-card').classList.replace('border-indigo-500', 'border-green-500');
+                document.getElementById('status-card').classList.replace('bg-indigo-50', 'bg-green-50');
+                document.getElementById('status-card').classList.replace('text-indigo-900', 'text-green-900');
+                
+                appIdDisplay.textContent = appId;
+                userIdDisplay.textContent = userId;
+                detailsSection.classList.remove('hidden');
 
-// ===== Tabs =====
-const tabButtons = document.querySelectorAll('.tab-button');
-const tabSections = document.querySelectorAll('.tab-section');
-tabButtons.forEach(btn => {
-    btn.addEventListener('click', () => {
-        tabButtons.forEach(b => b.classList.remove('active')); btn.classList.add('active');
-        const target = btn.dataset.tab;
-        tabSections.forEach(sec => sec.classList.add('hidden'));
-        document.getElementById(`${target}-section`).classList.remove('hidden');
-    });
-});
-tabButtons[0].click(); // default active tab
+            } catch (error) {
+                console.error("Firebase Initialization Error:", error);
 
-// ===== Posts =====
-async function loadPosts() {
-    const postsCol = collection(db, "posts");
-    onSnapshot(postsCol, snapshot => {
-        const postsDiv = document.getElementById('posts-list');
-        postsDiv.innerHTML = '';
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            postsDiv.innerHTML += `<div class="border p-2 rounded mb-2">
-                <strong>${data.author || 'Anonymous'}</strong>: ${data.content}
-            </div>`;
-        });
-    });
-}
+                // Update UI to show error
+                statusMessage.textContent = "Initialization Failed!";
+                document.getElementById('status-card').classList.replace('border-indigo-500', 'border-red-500');
+                document.getElementById('status-card').classList.replace('bg-indigo-50', 'bg-red-100');
+                document.getElementById('status-card').classList.replace('text-indigo-900', 'text-red-700');
+                
+                errorMessage.textContent = error.message;
+                errorSection.classList.remove('hidden');
+            }
+        }
 
-// ===== Random Chat =====
-function setupRandomChat() {
-    const chatWindow = document.getElementById('random-chat-window');
-    const chatInput = document.getElementById('random-chat-input');
-    const sendBtn = document.getElementById('send-random-chat');
-    const chatCol = collection(db, "random-chat");
-
-    onSnapshot(chatCol, snapshot => {
-        chatWindow.innerHTML = '';
-        snapshot.forEach(doc => {
-            const data = doc.data();
-            const cls = data.senderId===userId?'group-chat-message-mine':'group-chat-message-other';
-            chatWindow.innerHTML += `<div class="p-2 mb-1 rounded ${cls}">${data.message}</div>`;
-        });
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    });
-
-    sendBtn.addEventListener('click', async () => {
-        const msg = chatInput.value.trim();
-        if(!msg) return;
-        await addDoc(chatCol, { message: msg, senderId: userId, timestamp: serverTimestamp() });
-        chatInput.value = '';
-    });
-}
-
-// ===== AI Chat =====
-function setupAIChat() {
-    const chatWindow = document.getElementById('ai-chat-window');
-    const chatInput = document.getElementById('ai-chat-input');
-    const sendBtn = document.getElementById('send-ai-chat');
-
-    sendBtn.addEventListener('click', async () => {
-        const question = chatInput.value.trim();
-        if(!question) return;
-        chatWindow.innerHTML += `<div class="p-2 mb-1 rounded group-chat-message-mine">${question}</div>`;
-        chatInput.value = '';
-
-        // Dummy AI response for now
-        const aiResponse = "🤖 AI Response: " + question.split('').reverse().join('');
-        chatWindow.innerHTML += `<div class="p-2 mb-1 rounded group-chat-message-other">${aiResponse}</div>`;
-        chatWindow.scrollTop = chatWindow.scrollHeight;
-    });
-}
-</script>
+        // Run the initialization sequence on load
+        window.onload = initializeFirebase;
+    </script>
 </body>
 </html>
